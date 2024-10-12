@@ -10,11 +10,11 @@
 
 ## Project Information
 
-- **Meeting Time**: Every Satarday 10:00 a.m.
+- **Meeting Time**: Every Saturday 10:00 a.m.
 - **Project management**: [Trello](https://trello.com/invite/b/67033f60a26893dfa64c5d10/ATTI7e6091e4ec54997cf3b21f247b1f34b13114AF69/cloud-group-7)
 - **Meeting Record**: [Notion](https://www.notion.so/af7ad0c3b67a4f10a6d2c1e1a1092b99?v=11d7929684268188a58f000c80110e21&p=11d79296842681bb974ceaa143a8577c&pm=s)
 
-
+<br>
 <details>
   <summary>Team Member</summary>
   
@@ -26,21 +26,39 @@
 
 - 資訊二 柯智鈞
   
-</details>
+</details><br>
 
 <details>
   <summary>Team consensus</summary>
 
-  ### 1. 統一使用 merge 合併
+   ### 1. 技術選型
+  - **前端建立工具**：Vite
+  - **前端 UI 工具**：[shadcn/ui](https://ui.shadcn.com/)
+  - **前端技術**：HTML、CSS、JavaScript、React
+  -   **後端技術**：Node.js、Express、Nginx
+-   **資料庫**：MongoDB（大家想嘗試看看）
 
-  ### 2. Git Branching Model
+
+  ### 2. 決定 repo 是其他人 fork 出去
+
+  ### 3. 統一使用 merge 合併
+
+  ### 4. Git Branching Model
 
 我們決定採用以下分支模式：
-- **主要分支 (Main Branches)**：`main`（穩定版本）、`develop`（最新開發功能）
-- **功能分支 (Feature Branch)**：從 `develop` 開分支，用於開發新功能，開發完成後合併回 `develop`。
+
+  主要分支：main (穩定版本)，develop (開發中功能)
+
+  功能分支：從 develop 開分支開發新功能，完成後合併回 develop。
+
+  發佈分支：從 develop 開分支，準備新版本的發佈。
+
+  修補分支：從 main 開分支用於緊急修復，修復後合併至 main 和 develop。
+  
+  開發時先 main，develop，feature 三個分支為主 
 
 
-### 3. Commit 規範
+### 5. Commit 規範
   
 - `feat`: 新功能
 - `fix`: 修補 bug
@@ -53,7 +71,7 @@
 - `docs`: 文件更新
 - `style`: 程式碼格式修正（如移除空白、調整縮排）
 
-### 4. Coding Style
+### 6. Coding Style
 
   ### 1. 縮排與行長
 

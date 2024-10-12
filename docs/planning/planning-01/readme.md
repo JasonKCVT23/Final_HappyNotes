@@ -37,12 +37,21 @@ HappyNotes 是一款不同於其他筆記軟體的應用。相比傳統線性模
 ---
 
 ## 3. 技術選型
-
-- **前端技術**：HTML、CSS、JavaScript、React
-- **後端技術**：Node.js、Express
-- **資料庫**：MongoDB（大家想嘗試看看）
-- **打包工具**：Vite
+- **前端建立工具**：Vite
 - **前端 UI 工具**：[shadcn/ui](https://ui.shadcn.com/)
+- **前端技術**：HTML、CSS、JavaScript、React
+- **後端技術**：Node.js、Express、Nginx
+- **資料庫**：MongoDB（大家想嘗試看看）
+
+
+選擇 MongoDB 是因為適合儲存半結構化資料，如卡片筆記，並能靈活處理卡片與主題之間的關聯。
+它有不錯的可擴展性和 JSON 格式，適合大資料量和多層結構的需求。
+雖然我們也沒有學過 MongoDB，以前只有學過 MySQL 關聯式資料庫，所以這次專案是好機會。
+
+其他技術像是 React 以前只有稍微碰過，但是對於一些原理不熟，不知道 React 渲染網頁的原理，
+還有其他像是 hook 、 usestate 等等機制也不熟，也利用這次專案的機會更了解一些工具使用。
+
+
 
 ---
 
