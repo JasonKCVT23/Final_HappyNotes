@@ -49,7 +49,7 @@ HappyNotes 是一款不同於其他筆記軟體的應用。相比傳統線性模
 ## 4. 架構設計
 
 核心功能架構設計如以下示意圖所示：
-![image description](./asset/image1-main function.png)
+![image description](./asset/image1-main_function.png)
 
 
 ---
