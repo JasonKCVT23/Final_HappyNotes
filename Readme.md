@@ -1,5 +1,7 @@
 # Group7 Final Project - HappyNote
 
+### 小組作業連結 : [Planning](https://github.com/ChenTim1011/Final_HappyNotes/tree/main/docs/planning)
+
 ## Project Description
 
 當前市面上的許多筆記軟體大多是傳統的層層資料夾管理方式。而我們想開發基於卡片和白板的設計，
@@ -10,7 +12,8 @@
 
 - **Meeting Time**: Every Satarday 10:00 a.m.
 - **Project management**: [Trello](https://trello.com/invite/b/67033f60a26893dfa64c5d10/ATTI7e6091e4ec54997cf3b21f247b1f34b13114AF69/cloud-group-7)
-- **Team Planning Link**: [Planning](https://github.com/ChenTim1011/Final_HappyNotes/tree/main/docs/planning)
+- **Meeting Record**: [Notion](https://www.notion.so/af7ad0c3b67a4f10a6d2c1e1a1092b99?v=11d7929684268188a58f000c80110e21&p=11d79296842681bb974ceaa143a8577c&pm=s)
+
 
 <details>
   <summary>Team Member</summary>
