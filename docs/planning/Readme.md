@@ -1,9 +1,9 @@
 ### Team Discussion 
 
-- [Planning 01](https://github.com/ChenTim1011/Final_HappyNotes/tree/main/docs/planning/planning-01)
-- [Planning 02](https://github.com/ChenTim1011/Final_HappyNotes/tree/main/docs/planning/planning-02)
-- [Planning 03](https://github.com/ChenTim1011/Final_HappyNotes/tree/main/docs/planning/planning-03)
-- [Planning 04](https://github.com/ChenTim1011/Final_HappyNotes/tree/main/docs/planning/planning-04)
-- [Planning 05](https://github.com/ChenTim1011/Final_HappyNotes/tree/main/docs/planning/planning-05)
-- [Planning 06](https://github.com/ChenTim1011/Final_HappyNotes/tree/main/docs/planning/planning-06)
-- [Planning 07](https://github.com/ChenTim1011/Final_HappyNotes/tree/main/docs/planning/planning-07)
+- [小組作業 01](https://github.com/ChenTim1011/Final_HappyNotes/tree/main/docs/planning/planning-01)
+- [小組作業 02](https://github.com/ChenTim1011/Final_HappyNotes/tree/main/docs/planning/planning-02)
+- [小組作業 03](https://github.com/ChenTim1011/Final_HappyNotes/tree/main/docs/planning/planning-03)
+- [小組作業 04](https://github.com/ChenTim1011/Final_HappyNotes/tree/main/docs/planning/planning-04)
+- [小組作業 05](https://github.com/ChenTim1011/Final_HappyNotes/tree/main/docs/planning/planning-05)
+- [小組作業 06](https://github.com/ChenTim1011/Final_HappyNotes/tree/main/docs/planning/planning-06)
+- [小組作業 07](https://github.com/ChenTim1011/Final_HappyNotes/tree/main/docs/planning/planning-07)

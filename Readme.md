@@ -12,7 +12,6 @@
 
 - **Meeting Time**: Every Saturday 10:00 a.m.
 - **Project management**: [Trello](https://trello.com/invite/b/67033f60a26893dfa64c5d10/ATTI7e6091e4ec54997cf3b21f247b1f34b13114AF69/cloud-group-7)
-- **Meeting Record**: [Notion](https://www.notion.so/af7ad0c3b67a4f10a6d2c1e1a1092b99?v=11d7929684268188a58f000c80110e21&p=11d79296842681bb974ceaa143a8577c&pm=s)
 
 <br>
 <details>
