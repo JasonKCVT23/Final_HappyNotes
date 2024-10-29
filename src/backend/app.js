@@ -1,13 +1,11 @@
 const express = require('express');
 const app = express();
-const PORT = 50050;
+const whiteboardRoutes = require('./routes/whiteboardRoutes');
 
-// 設定基本路由
-app.get('/', (req, res) => {
-      res.send('Hello, Express!');
-});
+app.use(express.json());
+app.use('/', whiteboardRoutes);
 
-// 啟動伺服器
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
