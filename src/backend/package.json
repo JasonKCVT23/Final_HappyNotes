@@ -5,12 +5,18 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "db": "pm2 start config/db.js",
+    "app": "pm2 start app.js",
+    "stop-db": "pm2 stop config/db.js",
+    "stop-app": "pm2 stop app.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.21.1"
+    "body-parser": "^1.20.3",
+    "express": "^4.21.1",
+    "mongoose": "^8.7.2",
+    "pm2": "^5.4.2"
   }
 }
