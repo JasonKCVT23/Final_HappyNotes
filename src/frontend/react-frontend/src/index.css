@@ -1,0 +1,11 @@
+/* Import Tailwind's base styles */
+/* These are the foundational styles provided by Tailwind, including CSS reset and base typography settings */
+@tailwind base;
+
+/* Import Tailwind's component styles */
+/* These include pre-defined component styles, such as buttons, forms, and other common UI elements */
+@tailwind components;
+
+/* Import Tailwind's utility styles */
+/* These are the utility classes used to style elements, such as margin, padding, colors, and more */
+@tailwind utilities;
