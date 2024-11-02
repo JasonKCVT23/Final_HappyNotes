@@ -2,13 +2,14 @@ const mongoose = require('../config/db');
 
 // Define the Card Schema
 const cardSchema = new mongoose.Schema({
-    card_title: String,
+    cardTitle: String,
     content: mongoose.Schema.Types.Mixed,
-    due_date: Date,
+    dueDate: Date,
     tag: String,
-    fold_or_not: Boolean,
-    created_at: Date,
-    updated_at: Date,
+    foldOrNot: Boolean,
+    createdAt: Date,
+    updatedAt: Date,
+    comment: [String],
     position: {
         x: Number,
         y: Number,
@@ -18,14 +19,14 @@ const cardSchema = new mongoose.Schema({
         height: Number,
     },
     connection: [{
-        to_note_id: mongoose.Schema.Types.ObjectId,
-        position: Number //0:上, 1:右, 2:下, 3:左
+        toNoteId: mongoose.Schema.Types.ObjectId,
+        position: Number // 0:上, 1:右, 2:下, 3:左
     }],
     connectionBy: [{
-        to_note_id: mongoose.Schema.Types.ObjectId,
-        position: Number //0:上, 1:右, 2:下, 3:左
+        toNoteId: mongoose.Schema.Types.ObjectId,
+        position: Number // 0:上, 1:右, 2:下, 3:左
     }],
-    comment:[string]
+    
 });
 
 // Create the Card Model

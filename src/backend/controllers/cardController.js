@@ -13,15 +13,15 @@ const GET_CARDS = async (req, res) => {
 // Create a new card
 const POST_CARD = async (req, res) => {
     try {
-        const { card_title, content, due_date, tag, fold_or_not, position, dimensions, connection } = req.body;
+        const { cardTitle, content, dueDate, tag, foldOrNot, position, dimensions, connection } = req.body;
         const newCard = new Card({
-            card_title,
+            cardTitle,
             content,
-            due_date,
+            dueDate,
             tag,
-            fold_or_not: false, // 創建時 卡片是展開的狀態
-            created_at: new Date(),
-            updated_at: new Date(),
+            foldOrNot: false, // 創建時 卡片是展開的狀態
+            createdAt: new Date(),
+            updatedAt: new Date(),
             position,
             dimensions,
             connection
@@ -37,19 +37,19 @@ const POST_CARD = async (req, res) => {
 const PUT_CARD = async (req, res) => {
     try {
         const { id } = req.params;
-        const { card_title, content, due_date, tag, fold_or_not, position, dimensions, connection } = req.body;
+        const { cardTitle, content, dueDate, tag, foldOrNot, position, dimensions, connection } = req.body;
         const updatedCard = await Card.findByIdAndUpdate(
             id,
             {
-                card_title,
+                cardTitle,
                 content,
-                due_date,
+                dueDate,
                 tag,
-                fold_or_not,
+                foldOrNot,
                 position,
                 dimensions,
                 connection,
-                updated_at: new Date(),
+                updatedAt: new Date(),
             },
             { new: true } // Return the updated document
         );

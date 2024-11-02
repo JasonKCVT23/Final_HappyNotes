@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const cardController = require('../controllers/cardController'); // 引入 cardController
+const cardController = require('../controllers/cardController'); 
 
 // 獲取所有卡片
 router.get('/api/cards', cardController.GET_CARDS);
