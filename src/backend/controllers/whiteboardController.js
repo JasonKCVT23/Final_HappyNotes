@@ -13,16 +13,16 @@ const GET = async (req, res) => {
 // Create a new whiteboard
 const POST = async (req, res) => {
     try {
-        const { Whiteboard_title, is_private, user_id, position, dimensions, cards } = req.body;
+        const { whiteboardTitle, isPrivate, userId, position, dimensions, cards } = req.body;
         const newBoard = new Whiteboard({
-        Whiteboard_title,
-        is_private,
-        user_id,
-        created_at: new Date(),
-        updated_at: new Date(),
-        position,
-        dimensions,
-        cards,
+            whiteboardTitle,
+            isPrivate,
+            userId,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            position,
+            dimensions,
+            cards,
         });
         const savedBoard = await newBoard.save();
         res.status(201).json(savedBoard);
@@ -35,21 +35,21 @@ const POST = async (req, res) => {
 const PUT = async (req, res) => {
     try {
         const { id } = req.params;
-        const { Whiteboard_title, is_private, position, dimensions, cards } = req.body;
+        const { whiteboardTitle, isPrivate, position, dimensions, cards } = req.body;
         const updatedBoard = await Whiteboard.findByIdAndUpdate(
-        id,
-        {
-            Whiteboard_title,
-            is_private,
-            position,
-            dimensions,
-            cards,
-            updated_at: new Date(),
-        },
-        { new: true } // Return the updated document
+            id,
+            {
+                whiteboardTitle,
+                isPrivate,
+                position,
+                dimensions,
+                cards,
+                updatedAt: new Date(),
+            },
+            { new: true } // Return the updated document
         );
         if (!updatedBoard) {
-        return res.status(404).json({ error: 'Whiteboard not found' });
+            return res.status(404).json({ error: 'Whiteboard not found' });
         }
         res.json(updatedBoard);
     } catch (error) {

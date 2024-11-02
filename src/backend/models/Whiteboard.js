@@ -2,11 +2,11 @@ const mongoose = require('../config/db');
 
 // Define the Whiteboard Schema
 const whiteboardSchema = new mongoose.Schema({
-    Whiteboard_title: String,
-    is_private: Boolean,
-    user_id: mongoose.Schema.Types.ObjectId, // 引用到 User 的 _id
-    created_at: Date,
-    updated_at: Date,
+    whiteboardTitle: String,
+    isPrivate: Boolean,
+    userId: mongoose.Schema.Types.ObjectId, // 引用到 User 的 _id
+    createdAt: Date,
+    updatedAt: Date,
     position: {
         x: Number, 
         y: Number  
