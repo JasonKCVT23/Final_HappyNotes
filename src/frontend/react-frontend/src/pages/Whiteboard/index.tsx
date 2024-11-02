@@ -3,65 +3,8 @@ import { useParams } from 'react-router-dom';
 import Card from '@/components/specific/Whiteboard/Card';
 import { CardData } from '@/interfaces/CardData';
 import { WhiteboardData } from '@/interfaces/WhiteboardData';
+import { getAllWhiteboards,getWhiteboardById,updateWhiteboard } from '@/services/whiteboardService';
 
-// API base URL
-const API_BASE_URL = 'http://localhost:3000/api/whiteboards';
-
-// Function to get all whiteboards
-const getAllWhiteboards = async (): Promise<WhiteboardData[]> => {
-    const response = await fetch(API_BASE_URL, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to fetch whiteboards');
-    }
-
-    const data: WhiteboardData[] = await response.json();
-    return data;
-};
-
-// Function to get a whiteboard by ID
-const getWhiteboardById = async (id: string): Promise<WhiteboardData> => {
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to fetch whiteboard');
-    }
-
-    const data: WhiteboardData = await response.json();
-    return data;
-};
-
-// Function to update a whiteboard
-const updateWhiteboard = async (
-    id: string,
-    whiteboard: Partial<WhiteboardData>
-): Promise<WhiteboardData> => {
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(whiteboard),
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update whiteboard');
-    }
-
-    const data: WhiteboardData = await response.json();
-    return data;
-};
 
 // TODO:  GET /api/whiteboards/cards/
 

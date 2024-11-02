@@ -1,62 +1,9 @@
 import React, { useState, useEffect, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WhiteboardData } from '@/interfaces/WhiteboardData';
+import {getAllWhiteboards,createWhiteboard,deleteWhiteboardById} from '@/services/whiteboardService';
 
-// API base URL
-const API_BASE_URL = 'http://localhost:3000/api/whiteboards';
 
-// Function to get all whiteboards
-const getAllWhiteboards = async (): Promise<WhiteboardData[]> => {
-    const response = await fetch(API_BASE_URL, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to fetch whiteboards');
-    }
-
-    const data: WhiteboardData[] = await response.json();
-    return data;
-};
-
-// Function to create a new whiteboard
-const createWhiteboard = async (
-    whiteboard: WhiteboardData
-): Promise<WhiteboardData> => {
-    const response = await fetch(API_BASE_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(whiteboard),
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create whiteboard');
-    }
-
-    const data: WhiteboardData = await response.json();
-    return data;
-};
-
-// Function to delete a whiteboard by ID
-const deleteWhiteboardById = async (id: string): Promise<void> => {
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete whiteboard');
-    }
-};
 
 const Map: React.FC = () => {
     const navigate = useNavigate();
