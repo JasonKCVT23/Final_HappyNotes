@@ -1,53 +1,41 @@
-// frontend/src/components/specific/Whiteboard/Card.tsx
+// react-frontend/src/components/specific/Whiteboard/Card.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
-import { CardData } from '../../../interfaces/CardData';
-
-// Card component is responsible for displaying an editable card that can enter edit mode on double-click
-// and automatically adjusts its height to fit the content
+import React, { useState } from 'react';
+import { CardData } from '@/interfaces/CardData';
 
 interface CardProps extends CardData {
-    // **Function Description**: Defines a function prop used to update the card content
-    onUpdateContent: (id: string, newContent: string) => void;
+    onUpdateContent: (cardId: string, newContent: string) => void;
 }
 
 const Card: React.FC<CardProps> = ({
     id,
     cardTitle,
     content,
+    dueDate,
+    tag,
+    foldOrNot,
     position,
     dimensions,
+    connection,
+    connectionBy,
+    comments,
     onUpdateContent,
 }) => {
-    // **State Management Section**
-    const [isEditing, setIsEditing] = useState(false);
-    const [currentContent, setCurrentContent] = useState(content);
+    const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [editedContent, setEditedContent] = useState<string>(content);
 
-    // **Reference Section**
-    const textAreaRef = useRef<HTMLTextAreaElement>(null);
-
-    // **UseEffect Section**
-    useEffect(() => {
-        if (textAreaRef.current) {
-            textAreaRef.current.style.height = 'auto';
-            textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+    const handleSave = () => {
+        if (id) {
+            onUpdateContent(id, editedContent);
+            setIsEditing(false);
         }
-    }, [currentContent]);
-
-    // **Event Handling Section**
-    const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setCurrentContent(e.target.value);
-    };
-
-    const handleBlur = () => {
-        setIsEditing(false);
-        onUpdateContent(id, currentContent);
     };
 
     return (
         <div
-            className="absolute bg-gray-100 border border-gray-300 shadow-md rounded p-2 cursor-pointer text-sm overflow-hidden"
+            className="bg-blue-100 border border-blue-300 p-4 rounded shadow"
             style={{
+                position: 'absolute',
                 top: position.y,
                 left: position.x,
                 width: dimensions.width,
@@ -55,20 +43,24 @@ const Card: React.FC<CardProps> = ({
             }}
             onDoubleClick={() => setIsEditing(true)}
         >
-            <h3 className="text-md font-semibold mb-2">{cardTitle}</h3>
+            <h3 className="text-lg font-semibold">{cardTitle}</h3>
             {isEditing ? (
                 <textarea
-                    ref={textAreaRef}
-                    value={currentContent}
-                    onChange={handleContentChange}
-                    onBlur={handleBlur}
-                    className="w-full text-sm resize-none border-none outline-none overflow-hidden bg-transparent font-inherit"
-                    autoFocus
-                    title="Edit content"
                     placeholder="Enter content here"
+                    value={editedContent}
+                    onChange={(e) => setEditedContent(e.target.value)}
+                    className="w-full h-24 p-2 border rounded"
                 />
             ) : (
-                <p>{currentContent}</p>
+                <p className="mt-2">{content}</p>
+            )}
+            {isEditing && (
+                <button
+                    onClick={handleSave}
+                    className="mt-2 px-3 py-1 bg-green-500 text-white rounded"
+                >
+                    Save
+                </button>
             )}
         </div>
     );

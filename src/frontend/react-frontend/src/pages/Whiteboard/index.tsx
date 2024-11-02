@@ -1,20 +1,12 @@
+// src/components/Whiteboard.tsx
+
 import React, { useState, useEffect, FormEvent } from 'react';
 import { useParams } from 'react-router-dom';
 import Card from '@/components/specific/Whiteboard/Card';
 import { CardData } from '@/interfaces/CardData';
 import { WhiteboardData } from '@/interfaces/WhiteboardData';
-import { getAllWhiteboards,getWhiteboardById,updateWhiteboard } from '@/services/whiteboardService';
-
-
-// TODO:  GET /api/whiteboards/cards/
-
-// TODO  POST /api/whiteboards/cards/
-
-// TODO PUT /api/cards/
-
-// TODO DELETE /api/cards/
-
-
+import { getAllCards, createCard, updateCard, deleteCard } from '@/services/cardService';
+import { getWhiteboardById, updateWhiteboard } from '@/services/whiteboardService';
 
 // Component for Whiteboard
 const Whiteboard: React.FC = () => {
@@ -31,7 +23,7 @@ const Whiteboard: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Fetch whiteboard data from the backend when the component mounts or id changes
+    // Fetch whiteboard and associated cards data when the component mounts or id changes
     useEffect(() => {
         const fetchData = async () => {
             if (id) {
@@ -39,26 +31,11 @@ const Whiteboard: React.FC = () => {
                     const board = await getWhiteboardById(id);
                     setWhiteboard(board);
 
-                    // TODO: Replace this mock implementation with a real API call to fetch card details
-                    const initialCards: CardData[] = await Promise.all(
-                        board.cards.map(async (cardId: string) => {
-                            // TODO: Call the actual API to fetch individual card details
-                            return {
-                                id: cardId,
-                                cardTitle: `Card ${cardId}`,
-                                content: `Content of Card ${cardId}`,
-                                createdAt: new Date(),
-                                updatedAt: new Date(),
-                                dueDate: new Date(),
-                                tag: 'Tag',
-                                position: { x: 100, y: 150 },
-                                dimensions: { width: 200, height: 150 },
-                                connection: [],
-                                comments: [],
-                            };
-                        })
-                    );
-                    setCards(initialCards);
+                    // Fetch all cards and filter the ones that are part of the whiteboard
+                    const allCards = await getAllCards();
+                    const whiteboardCards = allCards.filter(card => board.cards.includes(card.id || ''));
+                    setCards(whiteboardCards);
+
                     setLoading(false);
                 } catch (err) {
                     console.error('Failed to fetch whiteboard data:', err);
@@ -73,51 +50,53 @@ const Whiteboard: React.FC = () => {
 
     // Add a new card: Adds a new card to the whiteboard at the specified x and y coordinates
     const addCard = async (x: number, y: number) => {
-        const newCard: CardData = {
+        const newCardData: Omit<CardData, 'id'> = {
             cardTitle: 'New Card',
             content: 'New Note',
             createdAt: new Date(),
             updatedAt: new Date(),
             dueDate: new Date(),
             tag: '',
+            foldOrNot: false, // default is not folded
             position: { x, y },
             dimensions: { width: 200, height: 150 },
             connection: [],
             comments: [],
         };
-        setCards([...cards, newCard]);
 
-        // TODO: Implement API call to add a new card to the backend
+        try {
+            // create card
+            const createdCard = await createCard(newCardData);
+            setCards([...cards, createdCard]);
 
-        if (whiteboard) {
-            try {
-                const updatedCards = [...whiteboard.cards, newCard.id].filter((cardId): cardId is string => cardId !== undefined);
-                if (whiteboard && whiteboard.id) {
-                    const updatedBoard = await updateWhiteboard(whiteboard.id, { cards: updatedCards });
-                    setWhiteboard(updatedBoard);           
-                }
-            } catch (err: any) {
-                console.error('Failed to update whiteboard with new card:', err);
-                alert(err.message || 'Failed to add card to whiteboard');
+            if (whiteboard && whiteboard.id) {
+                // update whiteboard
+                const updatedCards = [...whiteboard.cards, createdCard.id].filter((cardId): cardId is string => cardId !== undefined && cardId !== null);
+                const updatedBoard = await updateWhiteboard(whiteboard.id, { cards: updatedCards });
+                setWhiteboard(updatedBoard);
             }
-        }
 
-        setContextMenu(null);
+            setContextMenu(null);
+        } catch (err: any) {
+            console.error('Failed to add card:', err);
+            alert(err.message || 'Failed to add card');
+        }
     };
 
     // Delete a card: Deletes the currently selected card
     const deleteCardHandler = async () => {
         if (selectedCardId && whiteboard) {
             try {
+                // delete card
+                await deleteCard(selectedCardId);
                 setCards(cards.filter((card) => card.id !== selectedCardId));
 
-                // TODO: Implement API call to delete the card from the backend
-
+                // update whiteboard card list
                 const updatedCards = whiteboard.cards.filter((cardId) => cardId !== selectedCardId);
-                if (whiteboard && whiteboard.id) {
+                if(whiteboard.id) {
                     const updatedBoard = await updateWhiteboard(whiteboard.id, { cards: updatedCards });
                     setWhiteboard(updatedBoard);
-                }    
+                }
                 setSelectedCardId(null);
                 setContextMenu(null);
             } catch (err: any) {
@@ -128,16 +107,17 @@ const Whiteboard: React.FC = () => {
     };
 
     // Update card content: Updates the content of a specific card
-    const updateCardContent = async (cardId: string, newContent: string) => {
+    const updateCardContentHandler = async (cardId: string, newContent: string) => {
         try {
+            // update frontend
             setCards((prevCards) =>
                 prevCards.map((card) =>
                     card.id === cardId ? { ...card, content: newContent, updatedAt: new Date() } : card
                 )
             );
 
-            // TODO: Implement API call to update card content on the backend
-
+            // update backend
+            await updateCard(cardId, { content: newContent, updatedAt: new Date() });
         } catch (err: any) {
             console.error('Failed to update card content:', err);
             alert(err.message || 'Failed to update card content');
@@ -188,7 +168,7 @@ const Whiteboard: React.FC = () => {
                     onContextMenu={(e) => handleRightClick(e, card.id)}
                     onClick={() => card.id && setSelectedCardId(card.id)}
                 >
-                    <Card {...card} onUpdateContent={updateCardContent} />
+                    <Card {...card} onUpdateContent={updateCardContentHandler} />
                 </div>
             ))}
 
