@@ -1,62 +1,247 @@
-import React from 'react';
+import React, { useState, useEffect, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { WhiteboardData } from '@/interfaces/WhiteboardData';
 
-// The Map page contains multiple boards. Each board displays its title and the number of cards, 
-// and users can click on a board to navigate to its detailed page
+// API base URL
+const API_BASE_URL = 'http://localhost:3000/api/whiteboards';
 
-// TODO: Board data should be fetched from the backend
-const boards = [
-  { id: '1', title: 'Board 1', cards: [{ title: 'Card A' }, { title: 'Card B' }] },
-  { id: '2', title: 'Board 2', cards: [{ title: 'Card C' }, { title: 'Card D' }, { title: 'Card E' }] },
-  { id: '3', title: 'Board 3', cards: [{ title: 'Card F' }] }
-];
+// Function to get all whiteboards
+const getAllWhiteboards = async (): Promise<WhiteboardData[]> => {
+    const response = await fetch(API_BASE_URL, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch whiteboards');
+    }
+
+    const data: WhiteboardData[] = await response.json();
+    return data;
+};
+
+// Function to create a new whiteboard
+const createWhiteboard = async (
+    whiteboard: WhiteboardData
+): Promise<WhiteboardData> => {
+    const response = await fetch(API_BASE_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(whiteboard),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create whiteboard');
+    }
+
+    const data: WhiteboardData = await response.json();
+    return data;
+};
+
+// Function to delete a whiteboard by ID
+const deleteWhiteboardById = async (id: string): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete whiteboard');
+    }
+};
 
 const Map: React.FC = () => {
-  // **React Hook Usage Pattern**:
-  // Use useNavigate to get navigation functionality
-  const navigate = useNavigate();
+    const navigate = useNavigate();
+    const [whiteboards, setWhiteboards] = useState<WhiteboardData[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    const [isAdding, setIsAdding] = useState<boolean>(false);
+    const [newWhiteboardTitle, setNewWhiteboardTitle] = useState<string>('');
+    const [newWhiteboardPrivate, setNewWhiteboardPrivate] = useState<boolean>(false);
 
-  // **JSX Return Pattern**:
-  // Return JSX structure to render the page
-  return (
-    <div className="p-5 text-center">
-      {/* Display the page title */}
-      <h2 className="text-2xl font-semibold">Map Page</h2>
+    // Fetch whiteboards data from the backend when the component mounts
+    useEffect(() => {
+        const fetchWhiteboardsData = async () => {
+            try {
+                const data = await getAllWhiteboards();
+                setWhiteboards(data);
+                setLoading(false);
+            } catch (err) {
+                console.error('Failed to fetch whiteboards:', err);
+                setError('Failed to fetch whiteboards');
+                setLoading(false);
+            }
+        };
 
-      {/* Render all the boards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-5">
-        {/* Iterate over each board and render its content */}
-        {boards.map((board) => (
-          <div
-            key={board.id}
-            className="bg-gray-100 border border-gray-300 p-4 rounded-lg cursor-pointer transform transition-transform duration-200 hover:scale-105"
-            // Click event: When the user clicks on a board, navigate to the corresponding board page
-            onClick={() => navigate(`/board/${board.id}`)}
-          >
-            {/* Display the board title */}
-            <h3 className="text-lg font-medium">{board.title}</h3>
+        fetchWhiteboardsData();
+    }, []);
 
-            {/* Display the number of cards on this board */}
-            <p className="mt-2">Number of Cards: {board.cards.length}</p>
+    const handleCreateWhiteboard = async (e: FormEvent) => {
+        e.preventDefault();
+    
+        if (newWhiteboardTitle.trim() === '') {
+            alert('Whiteboard title is required.');
+            return;
+        }
+    
+        // TODO: Change to actual userId
+        const userId = '1';
+    
+        const whiteboardData: WhiteboardData = {
+            whiteboardTitle: newWhiteboardTitle,
+            isPrivate: newWhiteboardPrivate,
+            userId: userId,
+            position: { x: 0, y: 0 }, // TODO: Change to mouse position
+            dimensions: { width: 800, height: 600 }, // initial dimensions
+            cards: [], // no cards initially
+            createdAt: new Date(), 
+            updatedAt: new Date(), 
+        };
+    
+        try {
+            const createdWhiteboard = await createWhiteboard(whiteboardData);
+            setWhiteboards([...whiteboards, createdWhiteboard]);
+            setNewWhiteboardTitle('');
+            setNewWhiteboardPrivate(false);
+            setIsAdding(false);
+        } catch (err: any) {
+            console.error('Failed to create whiteboard:', err);
+            alert(err.message || 'Failed to create whiteboard');
+        }
+    };
 
-            {/* Display up to two card titles, if more than two, show an ellipsis */}
-            <div className="mt-3">
-              {board.cards.slice(0, 2).map((card, index) => (
-                <span
-                  key={index}
-                  className="inline-block bg-blue-500 text-white px-2 py-1 mr-2 mb-2 rounded text-sm"
+    // Handle deleting a whiteboard
+    const handleDeleteWhiteboard = async (id: string) => {
+        if (window.confirm('Are you sure you want to delete this whiteboard?')) {
+            try {
+                await deleteWhiteboardById(id);
+                setWhiteboards(whiteboards.filter((wb) => wb.id !== id));
+            } catch (err: any) {
+                console.error('Failed to delete whiteboard:', err);
+                alert(err.message || 'Failed to delete whiteboard');
+            }
+        }
+    };
+
+    if (loading) {
+        return <div className="p-5 text-center">Loading...</div>;
+    }
+
+    if (error) {
+        return <div className="p-5 text-center text-red-500">{error}</div>;
+    }
+
+    return (
+        <div className="p-5 text-center">
+            <h2 className="text-2xl font-semibold">Map Page</h2>
+
+            {/* Add New Whiteboard */}
+            {!isAdding ? (
+                <button
+                    onClick={() => setIsAdding(true)}
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
-                  {card.title}
-                </span>
-              ))}
-              {/* If there are more than two cards, show '...' */}
-              {board.cards.length > 2 && <span className="text-gray-500">...</span>}
+                    新增白板
+                </button>
+            ) : (
+                <form onSubmit={handleCreateWhiteboard} className="mt-4 p-4 border border-gray-300 rounded-lg bg-gray-50">
+                    <h3 className="text-xl font-semibold mb-2">Add New Whiteboard</h3>
+                    <div className="mb-4 text-left">
+                        <label className="block mb-2">Title</label>
+                        <input
+                            type="text"
+                            value={newWhiteboardTitle}
+                            onChange={(e) => setNewWhiteboardTitle(e.target.value)}
+                            className="w-full px-3 py-2 border rounded"
+                            placeholder="Enter whiteboard title"
+                        />
+                    </div>
+                    <div className="mb-4 text-left">
+                        <label className="inline-flex items-center">
+                            <input
+                                type="checkbox"
+                                checked={newWhiteboardPrivate}
+                                onChange={(e) => setNewWhiteboardPrivate(e.target.checked)}
+                                className="form-checkbox"
+                            />
+                            <span className="ml-2">Private</span>
+                        </label>
+                    </div>
+                    <div className="flex justify-end">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setIsAdding(false);
+                                setNewWhiteboardTitle('');
+                                setNewWhiteboardPrivate(false);
+                            }}
+                            className="px-4 py-2 mr-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                        >
+                            Create
+                        </button>
+                    </div>
+                </form>
+            )}
+
+            {/* Render all the whiteboards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-5">
+                {whiteboards.map((whiteboard) => (
+                    <div
+                        key={whiteboard.id}
+                        className="relative bg-gray-100 border border-gray-300 p-4 rounded-lg cursor-pointer transform transition-transform duration-200 hover:scale-105"
+                        onClick={() => navigate(`/whiteboard/${whiteboard.id}`)}
+                    >
+                        {/* Delete Button */}
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation(); // Stop the click event from bubbling up to the parent div
+                                handleDeleteWhiteboard(whiteboard.id);
+                            }}
+                            className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                            title="Delete Whiteboard"
+                        >
+                            &times;
+                        </button>
+
+                        {/* Display the whiteboard title */}
+                        <h3 className="text-lg font-medium">{whiteboard.whiteboardTitle}</h3>
+
+                        {/* Display the number of cards on this whiteboard */}
+                        <p className="mt-2">Number of Cards: {whiteboard.cards.length}</p>
+
+                        {/* Display up to two card IDs, if more than two, show an ellipsis */}
+                        <div className="mt-3">
+                            {whiteboard.cards.slice(0, 2).map((cardId) => (
+                                <span
+                                    key={cardId}
+                                    className="inline-block bg-blue-500 text-white px-2 py-1 mr-2 mb-2 rounded text-sm"
+                                >
+                                    Card {cardId}
+                                </span>
+                            ))}
+                            {whiteboard.cards.length > 2 && (
+                                <span className="text-gray-500">...</span>
+                            )}
+                        </div>
+                    </div>
+                ))}
             </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+        </div>
+    );
 };
 
 export default Map;

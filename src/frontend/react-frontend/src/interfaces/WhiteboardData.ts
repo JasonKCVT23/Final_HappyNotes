@@ -1,5 +1,5 @@
 export interface WhiteboardData {
-    id: string; 
+    id?: string; 
     whiteboardTitle: string; 
     isPrivate: boolean; 
     userId: string; 

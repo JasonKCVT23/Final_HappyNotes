@@ -1,5 +1,5 @@
 export interface CardData {
-  id: string; 
+  id?: string; 
   cardTitle: string; 
   content: any; // mongoose.Schema.Types.Mixed allows any type
   createdAt: Date; 
