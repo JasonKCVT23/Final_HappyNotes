@@ -1,4 +1,4 @@
-// frontend/src/services/whiteboardService.ts
+// react-frontend/src/services/whiteboardService.ts
 
 import { WhiteboardData } from '../interfaces/WhiteboardData';
 

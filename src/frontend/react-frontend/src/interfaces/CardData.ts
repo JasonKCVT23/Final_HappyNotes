@@ -6,6 +6,7 @@ export interface CardData {
   updatedAt: Date; 
   dueDate?: Date; 
   tag?: string; 
+  foldOrNot: Boolean,
   position: { 
     x: number;
     y: number;
@@ -15,9 +16,13 @@ export interface CardData {
     height: number;
   };
   connection?: Array<{ 
-    edge: number; // 0 (U), 1 (R), 2 (D), 3 (L)
+    toNoteId: number; // 0 (Up), 1 (Right), 2 (Down), 3 (Left)
     connectionId: string; 
   }>;
+  connectionBy?: Array<{
+    toNoteId: number;
+    position: Number // 0 (Up), 1 (Right), 2 (Down), 3 (Left)
+}>;
   comments?: Array<{ 
     commentId: string; 
     userId: string; 
