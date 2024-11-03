@@ -16,13 +16,13 @@ export const getAllCards = async (): Promise<CardData[]> => {
     if (!response.ok) {
         throw new Error('Failed to fetch cards');
     }
-
+    
     const data: CardData[] = await response.json();
     return data;
 };
 
 // POST /api/cards - Create a new card
-export const createCard = async (card: Omit<CardData, 'id'>): Promise<CardData> => {
+export const createCard = async (card: Omit<CardData, '_id'>): Promise<CardData> => {
     const response = await fetch(API_BASE_URL, {
         method: 'POST',
         headers: {

@@ -3,12 +3,16 @@
 import React, { useState } from 'react';
 import { CardData } from '@/interfaces/CardData';
 
+// Interface for Card component props extending CardData
 interface CardProps extends CardData {
-    onUpdateContent: (cardId: string, newContent: string) => void;
+    onUpdateCard: (cardId: string, updatedFields: Partial<CardData>) => void;
+    onDelete: (cardId: string) => void; 
+    isSelected: boolean; 
+    onSelect: (cardId: string) => void; 
 }
 
 const Card: React.FC<CardProps> = ({
-    id,
+    _id,
     cardTitle,
     content,
     dueDate,
@@ -19,21 +23,35 @@ const Card: React.FC<CardProps> = ({
     connection,
     connectionBy,
     comments,
-    onUpdateContent,
+    onUpdateCard,
+    onDelete, 
+    isSelected, 
+    onSelect, 
 }) => {
+    // Local state for editing mode and input values
     const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [editedTitle, setEditedTitle] = useState<string>(cardTitle);
     const [editedContent, setEditedContent] = useState<string>(content);
 
+    // Function to save edited content and update the card
     const handleSave = () => {
-        if (id) {
-            onUpdateContent(id, editedContent);
+        if (_id) {
+            onUpdateCard(_id, { cardTitle: editedTitle, content: editedContent, updatedAt: new Date() });
             setIsEditing(false);
         }
     };
 
+    // Error handling: Ensure card ID is defined
+    if (!_id) {
+        console.error("Card component received undefined id");
+        return null;
+    }
+
     return (
         <div
-            className="bg-blue-100 border border-blue-300 p-4 rounded shadow"
+            className={`bg-blue-100 border border-blue-300 p-4 rounded shadow relative cursor-pointer ${
+                isSelected ? 'ring-4 ring-blue-500' : ''
+            }`}
             style={{
                 position: 'absolute',
                 top: position.y,
@@ -42,25 +60,51 @@ const Card: React.FC<CardProps> = ({
                 height: dimensions.height,
             }}
             onDoubleClick={() => setIsEditing(true)}
+            onClick={() => onSelect(_id)} 
         >
-            <h3 className="text-lg font-semibold">{cardTitle}</h3>
+            {/** Delete button */}
+            <button
+                onClick={(e) => {
+                    e.stopPropagation(); // prevent parent onClick from firing
+                    onDelete(_id);
+                }}
+                className="absolute top-2 right-2 text-red-500 hover:text-red-700 focus:outline-none"
+                title="Delete Card"
+            >
+                &times;
+            </button>
+
             {isEditing ? (
-                <textarea
-                    placeholder="Enter content here"
-                    value={editedContent}
-                    onChange={(e) => setEditedContent(e.target.value)}
-                    className="w-full h-24 p-2 border rounded"
-                />
+                <>
+                    {/** Input for editing the card title */}
+                    <input
+                        type="text"
+                        value={editedTitle}
+                        onChange={(e) => setEditedTitle(e.target.value)}
+                        className="w-full px-2 py-1 border rounded mb-2"
+                        placeholder="Enter card title"
+                    />
+                    {/** Textarea for editing the card content */}
+                    <textarea
+                        placeholder="Enter content here"
+                        value={editedContent}
+                        onChange={(e) => setEditedContent(e.target.value)}
+                        className="w-full h-24 p-2 border rounded"
+                    />
+                    {/** Button to save changes */}
+                    <button
+                        onClick={handleSave}
+                        className="mt-2 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none"
+                    >
+                        Save
+                    </button>
+                </>
             ) : (
-                <p className="mt-2">{content}</p>
-            )}
-            {isEditing && (
-                <button
-                    onClick={handleSave}
-                    className="mt-2 px-3 py-1 bg-green-500 text-white rounded"
-                >
-                    Save
-                </button>
+                <>
+                    {/** Display the card title and content */}
+                    <h3 className="text-lg font-semibold">{cardTitle}</h3>
+                    <p className="mt-2">{content}</p>
+                </>
             )}
         </div>
     );
