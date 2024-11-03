@@ -1,5 +1,6 @@
+import { CardData } from './CardData';
 export interface WhiteboardData {
-    id?: string; 
+    _id: string; 
     whiteboardTitle: string; 
     isPrivate: boolean; 
     userId: string; 
@@ -13,6 +14,6 @@ export interface WhiteboardData {
       width: number;
       height: number;
     };
-    cards: string[]; // Array of Card ObjectIds as strings
+    cards: CardData[]; 
   }
   

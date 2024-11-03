@@ -1,5 +1,5 @@
 export interface CardData {
-  id?: string; 
+  _id: string; 
   cardTitle: string; 
   content: any; // mongoose.Schema.Types.Mixed allows any type
   createdAt: Date; 
@@ -16,12 +16,12 @@ export interface CardData {
     height: number;
   };
   connection?: Array<{ 
-    toNoteId: number; // 0 (Up), 1 (Right), 2 (Down), 3 (Left)
-    connectionId: string; 
+    toNoteId: string; 
+    position: number; // 0 (Up), 1 (Right), 2 (Down), 3 (Left)
   }>;
   connectionBy?: Array<{
-    toNoteId: number;
-    position: Number // 0 (Up), 1 (Right), 2 (Down), 3 (Left)
+    toNoteId: string; 
+    position: number; // 0 (Up), 1 (Right), 2 (Down), 3 (Left)
 }>;
   comments?: Array<{ 
     commentId: string; 
