@@ -1,9 +1,14 @@
 // react-frontend/src/services/whiteboardService.ts
 
 import { WhiteboardData } from '../interfaces/WhiteboardData';
+import { WhiteboardUpdateData } from '@/interfaces/WhiteboardUpdateData';
+import { CreateWhiteboardData } from '@/interfaces/CreateWhiteboardData';
 
 const API_BASE_URL = 'http://localhost:3000/api/whiteboards'; // according to your backend API
 
+
+
+// GET /api/whiteboards - Get all whiteboards
 export const getAllWhiteboards = async (): Promise<WhiteboardData[]> => {
     const response = await fetch(API_BASE_URL, {
         method: 'GET',
@@ -20,6 +25,7 @@ export const getAllWhiteboards = async (): Promise<WhiteboardData[]> => {
     return data;
 };
 
+// GET /api/whiteboards/:id - Get whiteboard by ID
 export const getWhiteboardById = async (id: string): Promise<WhiteboardData> => {
     const response = await fetch(`${API_BASE_URL}/${id}`, {
         method: 'GET',
@@ -36,8 +42,9 @@ export const getWhiteboardById = async (id: string): Promise<WhiteboardData> => 
     return data;
 };
 
+// POST /api/whiteboards - Create a new whiteboard
 export const createWhiteboard = async (
-    whiteboard: Omit<WhiteboardData, 'id' | 'cards'>
+    whiteboard: CreateWhiteboardData
 ): Promise<WhiteboardData> => {
     const response = await fetch(API_BASE_URL, {
         method: 'POST',
@@ -56,16 +63,17 @@ export const createWhiteboard = async (
     return data;
 };
 
+// PUT /api/whiteboards/:id - update the whiteboard with the specified ID
 export const updateWhiteboard = async (
     id: string,
-    whiteboard: Partial<WhiteboardData>
+    updates: Partial<WhiteboardUpdateData>
 ): Promise<WhiteboardData> => {
     const response = await fetch(`${API_BASE_URL}/${id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(whiteboard),
+        body: JSON.stringify(updates),
     });
 
     if (!response.ok) {
@@ -77,7 +85,7 @@ export const updateWhiteboard = async (
     return data;
 };
 
-
+// DELETE /api/whiteboards/:id
 export const deleteWhiteboardById = async (id: string): Promise<void> => {
     const response = await fetch(`${API_BASE_URL}/${id}`, {
         method: 'DELETE',

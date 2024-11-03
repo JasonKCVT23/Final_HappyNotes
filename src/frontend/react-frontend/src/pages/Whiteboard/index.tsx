@@ -7,11 +7,11 @@ import { CardData } from '@/interfaces/CardData';
 import { WhiteboardData } from '@/interfaces/WhiteboardData';
 import { getAllCards, createCard, updateCard, deleteCard } from '@/services/cardService';
 import { getWhiteboardById, updateWhiteboard } from '@/services/whiteboardService';
+import { WhiteboardUpdateData } from '@/interfaces/WhiteboardUpdateData';
 
 // Component for Whiteboard
 const Whiteboard: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-
     const [whiteboard, setWhiteboard] = useState<WhiteboardData | null>(null);
     const [cards, setCards] = useState<CardData[]>([]);
     const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
@@ -28,14 +28,22 @@ const Whiteboard: React.FC = () => {
         const fetchData = async () => {
             if (id) {
                 try {
-                    const board = await getWhiteboardById(id);
-                    setWhiteboard(board);
+                    // Fetch the whiteboard data by ID
+                    const whiteboard = await getWhiteboardById(id);
+                    setWhiteboard(whiteboard);
 
-                    // Fetch all cards and filter the ones that are part of the whiteboard
-                    const allCards = await getAllCards();
-                    const whiteboardCards = allCards.filter(card => board.cards.includes(card.id || ''));
-                    setCards(whiteboardCards);
+                    if (whiteboard && whiteboard._id) {
+                        setWhiteboard(whiteboard);
+                    } else {
+                        console.error("Whiteboard data does not have an ID");
+                    }
+                    // Ensure whiteboard.cards is an array, or set it to an empty array
+                    if (!Array.isArray(whiteboard.cards)) {
+                        whiteboard.cards = []; 
+                    }
 
+                    // Set the cards for rendering
+                    setCards(whiteboard.cards || []);
                     setLoading(false);
                 } catch (err) {
                     console.error('Failed to fetch whiteboard data:', err);
@@ -48,16 +56,22 @@ const Whiteboard: React.FC = () => {
         fetchData();
     }, [id]);
 
-    // Add a new card: Adds a new card to the whiteboard at the specified x and y coordinates
+    // Add a new card at the specified x and y coordinates
     const addCard = async (x: number, y: number) => {
-        const newCardData: Omit<CardData, 'id'> = {
+        // early return if whiteboard is not loaded or ID is undefined
+        if (!whiteboard || !whiteboard._id) {
+            console.error("Whiteboard is not loaded or ID is undefined");
+            return; 
+        }
+
+        const newCardData: Omit<CardData, '_id'> = {
             cardTitle: 'New Card',
             content: 'New Note',
             createdAt: new Date(),
             updatedAt: new Date(),
             dueDate: new Date(),
             tag: '',
-            foldOrNot: false, // default is not folded
+            foldOrNot: false, 
             position: { x, y },
             dimensions: { width: 200, height: 150 },
             connection: [],
@@ -65,17 +79,30 @@ const Whiteboard: React.FC = () => {
         };
 
         try {
-            // create card
+            // Create a new card and add it to the state
             const createdCard = await createCard(newCardData);
+            console.log("Created Card:", createdCard);
             setCards([...cards, createdCard]);
+            console.log("Whiteboard:", whiteboard);
+            console.log("Whiteboard ID:", whiteboard ? whiteboard._id : "No ID");
 
-            if (whiteboard && whiteboard.id) {
-                // update whiteboard
-                const updatedCards = [...whiteboard.cards, createdCard.id].filter((cardId): cardId is string => cardId !== undefined && cardId !== null);
-                const updatedBoard = await updateWhiteboard(whiteboard.id, { cards: updatedCards });
-                setWhiteboard(updatedBoard);
+
+            if (whiteboard && whiteboard._id && createdCard) {
+                if (createdCard._id) {
+                    // Update whiteboard with the new card's ID
+                    const existingCardIds: string[] = whiteboard.cards
+                    .map((card: CardData) => card._id)
+                    .filter((id): id is string => id !== undefined);
+                    
+                    const updatedCardIds: string[] = [...existingCardIds, createdCard._id];
+                
+                    // Update the whiteboard's cards in the backend
+                    const updatedWhiteboard = await updateWhiteboard(whiteboard._id, { cards: updatedCardIds });
+                    
+                    setWhiteboard(updatedWhiteboard);
+                    setCards(updatedWhiteboard.cards);
+                }
             }
-
             setContextMenu(null);
         } catch (err: any) {
             console.error('Failed to add card:', err);
@@ -84,18 +111,25 @@ const Whiteboard: React.FC = () => {
     };
 
     // Delete a card: Deletes the currently selected card
-    const deleteCardHandler = async () => {
-        if (selectedCardId && whiteboard) {
+    const deleteCardHandler = async (cardId: string) => {
+        if (cardId && whiteboard) {
             try {
-                // delete card
-                await deleteCard(selectedCardId);
-                setCards(cards.filter((card) => card.id !== selectedCardId));
+                // Delete the card and update the state
+                await deleteCard(cardId);
+                setCards(cards.filter((card) => card._id !== selectedCardId));
 
-                // update whiteboard card list
-                const updatedCards = whiteboard.cards.filter((cardId) => cardId !== selectedCardId);
-                if(whiteboard.id) {
-                    const updatedBoard = await updateWhiteboard(whiteboard.id, { cards: updatedCards });
+                // Update the whiteboard's card list in the backend
+                const updatedCardIds: string[] = whiteboard.cards
+                    .filter((card: CardData) => card._id !== selectedCardId)
+                    .map((card: CardData) => card._id)
+                    .filter((id): id is string => id !== undefined);
+
+                if(whiteboard._id) {
+                    const updatedBoard = await updateWhiteboard(whiteboard._id, { cards: updatedCardIds });
                     setWhiteboard(updatedBoard);
+                }
+                if(selectedCardId === cardId){
+                    setSelectedCardId(null);
                 }
                 setSelectedCardId(null);
                 setContextMenu(null);
@@ -107,24 +141,26 @@ const Whiteboard: React.FC = () => {
     };
 
     // Update card content: Updates the content of a specific card
-    const updateCardContentHandler = async (cardId: string, newContent: string) => {
+    const updateCardHandler = async (cardId: string, updatedFields: Partial<CardData>) => {
         try {
-            // update frontend
-            setCards((prevCards) =>
-                prevCards.map((card) =>
-                    card.id === cardId ? { ...card, content: newContent, updatedAt: new Date() } : card
-                )
-            );
+            // Update the card's content locally
+            setCards((prevCards) => {
+                if (!whiteboard) return prevCards;
+                const updatedCards = prevCards.map((card) =>
+                    card._id === cardId ? { ...card, ...updatedFields } : card
+                );
+                return updatedCards;
+            });
 
-            // update backend
-            await updateCard(cardId, { content: newContent, updatedAt: new Date() });
+            // Update the card in the backend
+            await updateCard(cardId, updatedFields);
         } catch (err: any) {
             console.error('Failed to update card content:', err);
             alert(err.message || 'Failed to update card content');
         }
     };
 
-    // Handle right-click event: Displays the context menu and sets the appropriate action (add or delete)
+    // Display the context menu for adding or deleting cards
     const handleRightClick = (e: React.MouseEvent, cardId?: string) => {
         e.preventDefault();
         setSelectedCardId(cardId || null);
@@ -135,11 +171,15 @@ const Whiteboard: React.FC = () => {
         });
     };
 
-    // Handle keydown event: Deletes the selected card when the Delete key is pressed
+    // Handle keydown events to delete the selected card
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Delete' && selectedCardId) {
-            deleteCardHandler();
+            deleteCardHandler(selectedCardId);
         }
+    };
+
+    const handleSelectCard = (cardId: string) => {
+        setSelectedCardId(cardId);
     };
 
     if (loading) {
@@ -163,16 +203,17 @@ const Whiteboard: React.FC = () => {
 
             {/* Card Rendering Section */}
             {cards.map((card) => (
-                <div
-                    key={card.id}
-                    onContextMenu={(e) => handleRightClick(e, card.id)}
-                    onClick={() => card.id && setSelectedCardId(card.id)}
-                >
-                    <Card {...card} onUpdateContent={updateCardContentHandler} />
-                </div>
+                <Card
+                key={card._id}
+                {...card}
+                onUpdateCard={updateCardHandler}
+                onDelete={deleteCardHandler} 
+                isSelected={card._id === selectedCardId} 
+                onSelect={handleSelectCard} 
+            />
             ))}
 
-            {/* Context Menu Section */}
+            {/* Display the context menu for adding or deleting cards */}
             {contextMenu && (
                 <div
                     className="absolute bg-gray-800 text-white p-2 rounded z-50 cursor-pointer"
@@ -180,8 +221,8 @@ const Whiteboard: React.FC = () => {
                     onClick={() => {
                         if (contextMenu.action === 'add') {
                             addCard(contextMenu.x, contextMenu.y);
-                        } else if (contextMenu.action === 'delete') {
-                            deleteCardHandler();
+                        } else if (contextMenu.action === 'delete'&& selectedCardId) {
+                            deleteCardHandler(selectedCardId);
                         }
                     }}
                 >
