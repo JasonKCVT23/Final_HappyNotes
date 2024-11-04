@@ -7,7 +7,9 @@
 
 ## How to start the project ?
 
-### Step 0: Setting the MongoDB avigate to the `src` Directory
+### Step 0: Setting the MongoDB 
+[Backend and DB setting tutorials](https://github.com/ChenTim1011/HappyNotes/tree/main/src/backend)
+
 
 ### Step 1: Navigate to the `src` Directory
 
