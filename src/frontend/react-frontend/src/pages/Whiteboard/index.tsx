@@ -1,13 +1,13 @@
-// src/components/Whiteboard.tsx
+// Whiteboard.tsx - Displays the whiteboard page with cards 
 
 import React, { useState, useEffect, FormEvent } from 'react';
 import { useParams } from 'react-router-dom';
 import Card from '@/components/specific/Whiteboard/Card';
-import { CardData } from '@/interfaces/CardData';
-import { WhiteboardData } from '@/interfaces/WhiteboardData';
+import { CardData } from '@/interfaces/Card/CardData';
+import { WhiteboardData } from '@/interfaces/Whiteboard/WhiteboardData';
 import { getAllCards, createCard, updateCard, deleteCard } from '@/services/cardService';
 import { getWhiteboardById, updateWhiteboard } from '@/services/whiteboardService';
-import { WhiteboardUpdateData } from '@/interfaces/WhiteboardUpdateData';
+
 
 const Whiteboard: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -211,17 +211,26 @@ const Whiteboard: React.FC = () => {
                 <div
                     className="absolute bg-gray-800 text-white p-2 rounded z-50 cursor-pointer"
                     style={{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }}
-                    onClick={() => {
-                        if (contextMenu.action === 'add') {
-                            addCard(contextMenu.x, contextMenu.y);
-                        } else if (contextMenu.action === 'delete'&& selectedCardId) {
-                            deleteCardHandler(selectedCardId);
-                        }
-                    }}
+                    onClick={(e) => e.stopPropagation()} // Prevent event bubbling
                 >
-                    <div className="py-1 px-2 hover:bg-gray-700">Add Card</div>
-                    {contextMenu.action === 'delete' && selectedCardId && (
-                        <div className="py-1 px-2 hover:bg-gray-700">Delete Card</div>
+                    {contextMenu.action === 'add' ? (
+                        <div
+                            className="py-1 px-2 hover:bg-gray-700"
+                            onClick={() => addCard(contextMenu.x, contextMenu.y)}
+                        >
+                            Add Card
+                        </div>
+                    ) : (
+                        <div
+                            className="py-1 px-2 hover:bg-gray-700"
+                            onClick={() => {
+                                if (selectedCardId) {
+                                    deleteCardHandler(selectedCardId);
+                                }
+                            }}
+                        >
+                            刪除卡片
+                        </div>
                     )}
                 </div>
             )}

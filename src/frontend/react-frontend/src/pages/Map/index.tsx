@@ -1,4 +1,4 @@
-// react-frontend/src/components/specific/Whiteboard/Map.tsx
+// Map.tsx - Displays a map of whiteboards and allows users to create and delete whiteboards
 
 import React, { useState, useEffect, FormEvent, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';

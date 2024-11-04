@@ -1,7 +1,7 @@
 // react-frontend/src/components/specific/Whiteboard/Card.tsx
 
 import React, { useState } from 'react';
-import { CardData } from '@/interfaces/CardData';
+import { CardData } from '@/interfaces/Card/CardData';
 
 // Interface for Card component props extending CardData
 interface CardProps extends CardData {
@@ -47,6 +47,15 @@ const Card: React.FC<CardProps> = ({
         return null;
     }
 
+    // Function to handle card deletion with confirmation
+    const handleDelete = (e: React.MouseEvent) => {
+        e.stopPropagation(); // Prevent triggering onSelect
+        const confirmDelete = window.confirm('你確定要刪除卡片嗎?');
+        if (confirmDelete) {
+            onDelete(_id);
+        }
+    };
+
     return (
         <div
             className={`bg-blue-100 border border-blue-300 p-4 rounded shadow relative cursor-pointer ${
@@ -64,10 +73,7 @@ const Card: React.FC<CardProps> = ({
         >
             {/** Delete button */}
             <button
-                onClick={(e) => {
-                    e.stopPropagation(); // prevent parent onClick from firing
-                    onDelete(_id);
-                }}
+                onClick={handleDelete}
                 className="absolute top-2 right-2 text-red-500 hover:text-red-700 focus:outline-none"
                 title="Delete Card"
             >

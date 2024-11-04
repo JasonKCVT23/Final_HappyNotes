@@ -1,8 +1,8 @@
-// react-frontend/src/services/whiteboardService.ts
+// whiteboardService.ts - Service for handling whiteboard data
 
-import { WhiteboardData } from '../interfaces/WhiteboardData';
-import { WhiteboardUpdateData } from '@/interfaces/WhiteboardUpdateData';
-import { CreateWhiteboardData } from '@/interfaces/CreateWhiteboardData';
+import { WhiteboardData } from '../interfaces/Whiteboard/WhiteboardData';
+import { WhiteboardUpdateData } from '@/interfaces/Whiteboard/WhiteboardUpdateData';
+import { CreateWhiteboardData } from '@/interfaces/Whiteboard/CreateWhiteboardData';
 
 const API_BASE_URL = 'http://localhost:3000/api/whiteboards'; // according to your backend API
 
@@ -66,14 +66,14 @@ export const createWhiteboard = async (
 // PUT /api/whiteboards/:id - update the whiteboard with the specified ID
 export const updateWhiteboard = async (
     id: string,
-    updates: Partial<WhiteboardUpdateData>
+    updateData: WhiteboardUpdateData
 ): Promise<WhiteboardData> => {
     const response = await fetch(`${API_BASE_URL}/${id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updates),
+        body: JSON.stringify(updateData),
     });
 
     if (!response.ok) {

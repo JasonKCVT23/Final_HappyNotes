@@ -1,6 +1,6 @@
-// react-frontend/src/services/cardServices.ts
+// cardService.ts - Service for handling card data
 
-import { CardData } from '@/interfaces/CardData';
+import { CardData } from '@/interfaces/Card/CardData';
 
 const API_BASE_URL = 'http://localhost:3000/api/cards'; // according to your backend API
 
