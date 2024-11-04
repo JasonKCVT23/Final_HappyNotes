@@ -14,8 +14,8 @@ const whiteboardSchema = new mongoose.Schema({
     y: { type: Number, default: 0 },
   },
   dimensions: {
-    width: { type: Number, default: 100 },
-    height: { type: Number, default: 200 },
+    width: { type: Number, default: 200 },
+    height: { type: Number, default: 150 },
   },
 
   cards: [

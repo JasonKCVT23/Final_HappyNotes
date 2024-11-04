@@ -1,19 +1,18 @@
-import React, { useState, useEffect, FormEvent } from 'react';
+// react-frontend/src/components/specific/Whiteboard/Map.tsx
+
+import React, { useState, useEffect, FormEvent, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { WhiteboardData } from '@/interfaces/WhiteboardData';
-import {getAllWhiteboards,createWhiteboard,deleteWhiteboardById} from '@/services/whiteboardService';
-
-
+import { WhiteboardData } from '@/interfaces/Whiteboard/WhiteboardData';
+import { getAllWhiteboards, createWhiteboard, deleteWhiteboardById } from '@/services/whiteboardService';
 
 const Map: React.FC = () => {
     const navigate = useNavigate();
     const [whiteboards, setWhiteboards] = useState<WhiteboardData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [isAdding, setIsAdding] = useState<boolean>(false);
+    const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
     const [newWhiteboardTitle, setNewWhiteboardTitle] = useState<string>('');
     const [newWhiteboardPrivate, setNewWhiteboardPrivate] = useState<boolean>(false);
-    const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
     // Fetch whiteboards data from the backend when the component mounts
     useEffect(() => {
@@ -23,11 +22,11 @@ const Map: React.FC = () => {
                 // Validate the data
                 const validatedData = data.map(wb => {
                     if (!wb._id) {
-                    throw new Error('Whiteboard data does not have an ID');
-                }
+                        throw new Error('Whiteboard data does not have an ID');
+                    }
                     return wb;
                 });
-                setWhiteboards(data);
+                setWhiteboards(validatedData);
                 setLoading(false);
             } catch (err) {
                 console.error('Failed to fetch whiteboards:', err);
@@ -38,17 +37,7 @@ const Map: React.FC = () => {
 
         fetchWhiteboardsData();
     }, []);
-    // Track the mouse position and update state
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            setMousePosition({ x: e.clientX, y: e.clientY });
-        };
-    
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-        };
-    }, []);
+
     // Handle the creation of a new whiteboard
     const handleCreateWhiteboard = async (e: FormEvent) => {
         e.preventDefault();
@@ -60,16 +49,22 @@ const Map: React.FC = () => {
     
         // TODO: Replace this hardcoded user ID with an actual one from authentication
         const userId = '1';
-    
-        const whiteboardData:  Omit<WhiteboardData, '_id'>  = {
+
+        // Ensure contextMenu is not null
+        if (!contextMenu) {
+            alert('Context menu position is not available.');
+            return;
+        }
+
+        const whiteboardData: Omit<WhiteboardData, '_id'> = {
             whiteboardTitle: newWhiteboardTitle,
             isPrivate: newWhiteboardPrivate,
             userId: userId,
-            position: { x: mousePosition.x, y: mousePosition.y }, 
-            dimensions: { width: 100, height: 200 }, 
-            cards: [], 
-            createdAt: new Date(), 
-            updatedAt: new Date(), 
+            position: { x: contextMenu.x, y: contextMenu.y }, // Use the context menu position
+            dimensions: { width: 200, height: 150 }, 
+            cards: [],
+            createdAt: new Date(),
+            updatedAt: new Date(),
         };
     
         try {
@@ -78,7 +73,7 @@ const Map: React.FC = () => {
             setWhiteboards([...whiteboards, createdWhiteboard]);
             setNewWhiteboardTitle('');
             setNewWhiteboardPrivate(false);
-            setIsAdding(false);
+            setContextMenu(null);
         } catch (err: any) {
             console.error('Failed to create whiteboard:', err);
             alert(err.message || 'Failed to create whiteboard');
@@ -98,6 +93,27 @@ const Map: React.FC = () => {
             }
         }
     };
+
+    // Handle right-click to show context menu
+    const handleContextMenu = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setContextMenu({ x: e.clientX, y: e.clientY });
+    };
+
+    // Handle click outside the context menu to close it
+    useEffect(() => {
+        const handleClick = () => {
+            if (contextMenu) {
+                setContextMenu(null);
+            }
+        };
+
+        window.addEventListener('click', handleClick);
+        return () => {
+            window.removeEventListener('click', handleClick);
+        };
+    }, [contextMenu]);
+
     // Display a loading message while data is being fetched
     if (loading) {
         return <div className="p-5 text-center">Loading...</div>;
@@ -108,76 +124,30 @@ const Map: React.FC = () => {
     }
 
     return (
-        <div className="p-5 text-center">
-            <h2 className="text-2xl font-semibold">Map Page</h2>
-
-            {/* Add New Whiteboard */}
-            {!isAdding ? (
-                <button
-                    onClick={() => setIsAdding(true)}
-                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                    新增白板
-                </button>
-            ) : (
-                 // Form to create a new whiteboard
-                <form onSubmit={handleCreateWhiteboard} className="mt-4 p-4 border border-gray-300 rounded-lg bg-gray-50">
-                    <h3 className="text-xl font-semibold mb-2">Add New Whiteboard</h3>
-                    <div className="mb-4 text-left">
-                        <label className="block mb-2">Title</label>
-                        <input
-                            type="text"
-                            value={newWhiteboardTitle}
-                            onChange={(e) => setNewWhiteboardTitle(e.target.value)}
-                            className="w-full px-3 py-2 border rounded"
-                            placeholder="Enter whiteboard title"
-                        />
-                    </div>
-                    <div className="mb-4 text-left">
-                        <label className="inline-flex items-center">
-                            <input
-                                type="checkbox"
-                                checked={newWhiteboardPrivate}
-                                onChange={(e) => setNewWhiteboardPrivate(e.target.checked)}
-                                className="form-checkbox"
-                            />
-                            <span className="ml-2">Private</span>
-                        </label>
-                    </div>
-                    <div className="flex justify-end">
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setIsAdding(false);
-                                setNewWhiteboardTitle('');
-                                setNewWhiteboardPrivate(false);
-                            }}
-                            className="px-4 py-2 mr-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                        >
-                            Create
-                        </button>
-                    </div>
-                </form>
-            )}
+        <div
+            className="relative w-full h-screen bg-white"
+            onContextMenu={handleContextMenu}
+        >
+            <h2 className="text-2xl font-semibold p-5">Map Page</h2>
 
             {/* Render all the whiteboards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-5">
+            <div className="absolute top-0 left-0 w-full h-full">
                 {whiteboards.map((whiteboard) => (
                     <div
                         key={whiteboard._id}
-                        className="relative bg-gray-100 border border-gray-300 p-4 rounded-lg cursor-pointer transform transition-transform duration-200 hover:scale-105"
+                        className="absolute bg-gray-100 border border-gray-300 p-4 rounded-lg cursor-pointer transform transition-transform duration-200 hover:scale-105"
+                        style={{
+                            top: whiteboard.position.y,
+                            left: whiteboard.position.x,
+                            width: whiteboard.dimensions.width,
+                            height: whiteboard.dimensions.height
+                        }}
                         onClick={() => navigate(`/whiteboard/${whiteboard._id}`)}
                     >
                         {/* Delete Button */}
                         <button
                             onClick={(e) => {
-                                e.stopPropagation(); // Stop the click event from bubbling up to the parent div
+                                e.stopPropagation(); // prevent onClick from navigating to whiteboard
                                 if (whiteboard._id) handleDeleteWhiteboard(whiteboard._id);
                             }}
                             className="absolute top-2 right-2 text-red-500 hover:text-red-700"
@@ -200,7 +170,7 @@ const Map: React.FC = () => {
                                     className="inline-block bg-blue-500 text-white px-2 py-1 mr-2 mb-2 rounded text-sm"
                                 >
                                      card {card._id}
-                                </span>
+                                </div>
                             )) || null }
                             {whiteboard.cards.length > 10 && (
                                 <span className="text-gray-500">...</span>
@@ -209,6 +179,58 @@ const Map: React.FC = () => {
                     </div>
                 ))}
             </div>
+
+            {/* Context Menu for Adding Whiteboard */}
+            {contextMenu && (
+                    <div
+                        className="absolute bg-white border border-gray-300 shadow-lg rounded p-4 z-50"
+                        style={{
+                            top: contextMenu.y,
+                            left: contextMenu.x,
+                        }}
+                        onClick={(e) => e.stopPropagation()} // Prevent event bubbling to close the form
+                    >
+                        <form onSubmit={handleCreateWhiteboard} className="space-y-4">
+                            <h3 className="text-xl font-semibold">新增白板</h3>
+                            <div>
+                                <label className="block mb-1">標題</label>
+                                <input
+                                    type="text"
+                                    value={newWhiteboardTitle}
+                                    onChange={(e) => setNewWhiteboardTitle(e.target.value)}
+                                    className="w-full px-3 py-2 border rounded"
+                                    placeholder="輸入白板標題"
+                                    required
+                                />
+                            </div>
+                            <div className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    checked={newWhiteboardPrivate}
+                                    onChange={(e) => setNewWhiteboardPrivate(e.target.checked)}
+                                    className="form-checkbox"
+                                    id="private-checkbox"
+                                />
+                                <label htmlFor="private-checkbox" className="ml-2">私人</label>
+                            </div>
+                            <div className="flex justify-end space-x-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setContextMenu(null)}
+                                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                                >
+                                    取消
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                                >
+                                    建立
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+            )}
         </div>
     );
 };
