@@ -195,7 +195,7 @@ const Map: React.FC = () => {
                         {/* Display up to two card IDs, if more than two, show an ellipsis */}
                         <div className="mt-3">
                             {whiteboard.cards?.slice(0, 20).map((card) => (
-                                <span
+                                <div
                                     key={card._id}
                                     className="inline-block bg-blue-500 text-white px-2 py-1 mr-2 mb-2 rounded text-sm"
                                 >

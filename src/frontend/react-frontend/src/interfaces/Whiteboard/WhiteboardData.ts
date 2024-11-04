@@ -1,4 +1,4 @@
-import { CardData } from './CardData';
+import { CardData } from '../Card/CardData';
 export interface WhiteboardData {
     _id: string; 
     whiteboardTitle: string; 
