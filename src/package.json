@@ -1,0 +1,22 @@
+{
+  "name": "FinalCloud",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "npm run app && npm run db",
+    "app": "cd backend && pm2 start app.js --name app",
+    "db": "cd backend && pm2 start config/db.js --name db",
+    "frontend": "cd frontend/react-frontend && npm run dev",
+    "stop-frontend": "kill-port 3000",
+    "stop-backend": "cd backend && pm2 stop app && pm2 stop db",
+    "stop": "npm run stop-backend"
+  },
+  "devDependencies": {
+    "@types/node": "^22.8.6",
+    "concurrently": "^8.2.0",
+    "kill-port": "^2.0.1"
+  },
+  "dependencies": {
+    "pm2": "^5.4.2"
+  }
+}
