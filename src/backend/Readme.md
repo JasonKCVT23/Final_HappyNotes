@@ -1,8 +1,14 @@
 ### Backend  nodejs + express + MongoDB
 
 # nodejs + express
-1. npm install
-2. npm run start
+## initial
+   1. npm install
+## start connection and server
+   1. npm run db
+   2. npm run app
+## stop connection and server
+   1. npm run stop-app
+   2. npm run stop-db
 
 # MongoDB Installation
 ## Ubuntu :
